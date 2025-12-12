@@ -41,20 +41,22 @@ public class NotesService {
 
 
     public NotesResponse getNote(Long id) {
-        Note note = notesRepository.findById(id).orElseThrow(() -> new NoteNotFoundException(id));
+        Long ownerId = authUtil.getCurrentUserId();
+        Note note = notesRepository.findNoteById(ownerId, id).orElseThrow(() -> new NoteNotFoundException(id));
         return new NotesResponse(note.getId(), note.getTitle(), note.getBody());
     }
 
     public Page<NotesResponse> getAllNotes(int page, int size) {
+        Long ownerId = authUtil.getCurrentUserId();
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        Page<Note> notes = notesRepository.findAll(pageable);
-
+        Page<Note> notes = notesRepository.findByOwnerId(ownerId,pageable);
         return notes.map(this::noteToResponse);
     }
 
     @Transactional
     public NotesResponse updateNote(Long id, CreateNoteRequest createNoteRequest) {
-        Note note = notesRepository.findById(id).orElseThrow(() -> new NoteNotFoundException(id));
+        Long ownerId = authUtil.getCurrentUserId();
+        Note note = notesRepository.findNoteById(ownerId,id).orElseThrow(() -> new NoteNotFoundException(id));
 
         note.setTitle(createNoteRequest.getTitle());
         note.setBody(createNoteRequest.getBody());
@@ -65,7 +67,8 @@ public class NotesService {
 
     @Transactional
     public void deleteNote(Long id) {
-        Note note = notesRepository.findById(id).orElseThrow(() -> new NoteNotFoundException(id));
+        Long ownerId = authUtil.getCurrentUserId();
+        Note note = notesRepository.findNoteById(ownerId,id).orElseThrow(() -> new NoteNotFoundException(id));
         notesRepository.delete(note);
     }
 

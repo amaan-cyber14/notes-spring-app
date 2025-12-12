@@ -15,7 +15,7 @@ public class Note {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id = 0L;
 
-
+    @Column(unique = true, nullable = false)
     Long ownerId;
 
     String title;
