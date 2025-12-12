@@ -42,6 +42,7 @@ public class NotesService {
 
     public NotesResponse getNote(Long id) {
         Long ownerId = authUtil.getCurrentUserId();
+        System.out.println("User ID = " + authUtil.getCurrentUserId());
         Note note = notesRepository.findByOwnerIdAndId(ownerId, id).orElseThrow(() -> new NoteNotFoundException(id));
         return new NotesResponse(note.getId(), note.getTitle(), note.getBody());
     }
