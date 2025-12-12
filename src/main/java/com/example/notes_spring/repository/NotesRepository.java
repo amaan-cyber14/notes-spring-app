@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface NotesRepository extends JpaRepository<Note, Long> {
     Page <Note> findByOwnerId(Long ownerId, Pageable pageable);
-    Optional<Note> findNoteById(Long ownerId, Long id);
+    Optional<Note> findByOwnerIdAndId(Long ownerId, Long id);
 }
