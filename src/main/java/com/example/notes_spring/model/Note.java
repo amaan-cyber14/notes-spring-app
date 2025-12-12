@@ -15,13 +15,17 @@ public class Note {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id = 0L;
 
+
+    Long ownerId;
+
     String title;
 
     @Column(columnDefinition = "TEXT")
     String body;
 
-    public Note(String title, String body) {
+    public Note(String title, String body, Long ownerId) {
         this.title = title;
         this.body = body;
+        this.ownerId = ownerId;
     }
 }

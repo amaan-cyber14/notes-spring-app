@@ -4,10 +4,11 @@ import com.example.notes_spring.model.User;
 import com.example.notes_spring.repository.UserRepository;
 import com.example.notes_spring.service.JwtService;
 import com.example.notes_spring.service.UserService;
-import jakarta.validation.Valid;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,24 +40,26 @@ public class AuthController {
 
     public static class AuthResponse {
         public String token;
+        public Long userId;
 
-        public AuthResponse(String token) { this.token = token; }
+        public AuthResponse(String token, Long userId) { this.token = token; this.userId = userId; }
     }
 
     @PostMapping("/signup")
-    public AuthResponse signup(@RequestBody @Valid SignupRequest req) {
+    public AuthResponse signup(@RequestBody @Validated SignupRequest req) {
         User user = userService.register(req.email, req.password);
         String token = jwtService.generateToken(user.getEmail());
-        return new AuthResponse(token);
+        return new AuthResponse(token, user.getId());
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody @Valid SignupRequest req) {
+    public AuthResponse login(@RequestBody @Validated SignupRequest req) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(req.email, req.password)
         );
         String token = jwtService.generateToken(req.email);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return new AuthResponse(token);
+        User user = userRepository.findByEmail(req.email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return new AuthResponse(token, user.getId());
     }
 }
