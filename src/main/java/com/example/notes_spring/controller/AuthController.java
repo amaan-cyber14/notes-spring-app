@@ -105,6 +105,7 @@ public class AuthController {
         RefreshTokens refreshTokens = new RefreshTokens(
                 UUID.randomUUID().toString(), userId, createdAt, expiresAt, false
         );
-        return new AuthResponse(token, userId, refreshTokens.getToken());
+        RefreshTokens savedRefreshToken = refreshTokenRepository.save(refreshTokens);
+        return new AuthResponse(token, userId, savedRefreshToken.getToken());
     }
 }
