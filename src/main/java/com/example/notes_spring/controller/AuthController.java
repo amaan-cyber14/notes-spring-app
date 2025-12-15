@@ -5,6 +5,7 @@ import com.example.notes_spring.dto.RefreshTokenRequest;
 import com.example.notes_spring.model.RefreshTokens;
 import com.example.notes_spring.model.User;
 import com.example.notes_spring.repository.RefreshTokenRepository;
+import com.example.notes_spring.repository.UserRepository;
 import com.example.notes_spring.service.JwtService;
 import com.example.notes_spring.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -34,13 +35,16 @@ public class AuthController {
     private final UserService userService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final AuthUtil authUtil;
+    private final UserRepository userRepository;
 
     public AuthController(AuthenticationManager authenticationManager,
                           JwtService jwtService,
                           UserService userService,
                           RefreshTokenRepository refreshTokenRepository,
+                          UserRepository userRepository,
                           AuthUtil authUtil
     ) {
+        this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.authUtil = authUtil;
         this.authenticationManager = authenticationManager;
@@ -79,13 +83,12 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<Object> refresh(@RequestBody @Validated RefreshTokenRequest req) {
-        Long currentUserId = authUtil.getCurrentUserId();
-        RefreshTokens dbRefreshToken = refreshTokenRepository.findByUserId(currentUserId);
-        boolean isRefreshTokenValid = !dbRefreshToken.isRevoked() && (dbRefreshToken.getCreatedAt() < dbRefreshToken.getExpiresAt()) && Objects.equals(dbRefreshToken.getToken(), req.getRefreshToken());
+        RefreshTokens dbRefreshToken = refreshTokenRepository.findByToken(req.getRefreshToken()).orElseThrow();
+        boolean isRefreshTokenValid = !dbRefreshToken.isRevoked() && (dbRefreshToken.getCreatedAt() < dbRefreshToken.getExpiresAt());
         if (isRefreshTokenValid) {
-            String currentUserEmail = authUtil.getCurrentUserEmail();
+            String currentUserEmail = userRepository.findById(dbRefreshToken.getUserId()).orElseThrow().getEmail();
             String token = jwtService.generateToken(currentUserEmail);
-            return new ResponseEntity<>(new AuthResponse(token, currentUserId, req.getRefreshToken()), HttpStatus.OK);
+            return new ResponseEntity<>(new AuthResponse(token, dbRefreshToken.getUserId(), req.getRefreshToken()), HttpStatus.OK);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
