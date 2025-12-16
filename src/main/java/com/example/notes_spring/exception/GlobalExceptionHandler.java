@@ -33,6 +33,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new ErrorResponse(ex.getMessage(), null), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(UnauthorizedException ex){
+        return new ResponseEntity<>(new ErrorResponse(ex.getMessage(), null), HttpStatus.UNAUTHORIZED);
+    }
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex){

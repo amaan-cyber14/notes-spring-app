@@ -2,6 +2,7 @@ package com.example.notes_spring.controller;
 
 import com.example.notes_spring.component.AuthUtil;
 import com.example.notes_spring.dto.RefreshTokenRequest;
+import com.example.notes_spring.exception.UnauthorizedException;
 import com.example.notes_spring.model.RefreshTokens;
 import com.example.notes_spring.model.User;
 import com.example.notes_spring.repository.RefreshTokenRepository;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 /*
@@ -82,15 +85,15 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<Object> refresh(@RequestBody @Validated RefreshTokenRequest req) {
-        RefreshTokens dbRefreshToken = refreshTokenRepository.findByToken(req.getRefreshToken()).orElseThrow();
+    public AuthResponse refresh(@RequestBody @Validated RefreshTokenRequest req) {
+        RefreshTokens dbRefreshToken = refreshTokenRepository.findByToken(req.getRefreshToken()).orElseThrow(() -> new UnauthorizedException("Invalid refresh token"));
         boolean isRefreshTokenValid = !dbRefreshToken.isRevoked() && (dbRefreshToken.getCreatedAt() < dbRefreshToken.getExpiresAt());
         if (isRefreshTokenValid) {
             String currentUserEmail = userRepository.findById(dbRefreshToken.getUserId()).orElseThrow().getEmail();
             String token = jwtService.generateToken(currentUserEmail);
-            return new ResponseEntity<>(new AuthResponse(token, dbRefreshToken.getUserId(), req.getRefreshToken()), HttpStatus.OK);
+            return new AuthResponse(token, dbRefreshToken.getUserId(), req.getRefreshToken());
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            throw new UnauthorizedException("Refresh token revoked or expired");
         }
     }
 
@@ -114,5 +117,16 @@ public class AuthController {
         );
         RefreshTokens savedRefreshToken = refreshTokenRepository.save(refreshTokens);
         return new AuthResponse(token, userId, savedRefreshToken.getToken());
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, String>> logout(@RequestBody @Validated RefreshTokenRequest req) {
+        String refreshToken = req.getRefreshToken();
+
+        RefreshTokens refreshTokens = refreshTokenRepository.findByToken(refreshToken).orElseThrow(() -> new UnauthorizedException("Invalid refresh token"));
+        refreshTokenRepository.deleteByUserId(refreshTokens.getUserId());
+        HashMap<String, String> map = new HashMap<>();
+        map.put("refreshToken", null);
+        return new ResponseEntity<>(map, HttpStatus.OK);
     }
 }
