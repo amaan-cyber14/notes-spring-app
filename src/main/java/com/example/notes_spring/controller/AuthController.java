@@ -102,8 +102,12 @@ public class AuthController {
         String token = jwtService.generateToken(req.email);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        long createdAt = System.currentTimeMillis();
         Long userId = authUtil.getCurrentUserId();
+
+        // delete refresh token if present
+        refreshTokenRepository.deleteByUserId(userId);
+
+        long createdAt = System.currentTimeMillis();
         long expiresAt = createdAt + 24L * 60 * 60 * 1000 * 30 ;
         RefreshTokens refreshTokens = new RefreshTokens(
                 UUID.randomUUID().toString(), userId, createdAt, expiresAt, false
