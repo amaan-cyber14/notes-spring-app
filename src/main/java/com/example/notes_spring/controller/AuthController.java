@@ -9,6 +9,7 @@ import com.example.notes_spring.repository.RefreshTokenRepository;
 import com.example.notes_spring.repository.UserRepository;
 import com.example.notes_spring.service.JwtService;
 import com.example.notes_spring.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,6 +31,7 @@ import java.util.UUID;
 * Need to refactor, remove all the repos, and create and use AuthService
 * */
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -107,6 +109,7 @@ public class AuthController {
 
         Long userId = authUtil.getCurrentUserId();
 
+        log.debug("UserId = {}", userId.toString());
         // delete refresh token if present
         refreshTokenRepository.deleteByUserId(userId);
 
