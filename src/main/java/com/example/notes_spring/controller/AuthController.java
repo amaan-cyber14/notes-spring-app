@@ -104,6 +104,7 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(req.email, req.password)
         );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtService.generateToken(req.email);
 
         Long userId = authUtil.getCurrentUserId();
