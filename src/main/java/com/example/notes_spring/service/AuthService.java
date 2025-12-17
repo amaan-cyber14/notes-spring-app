@@ -75,7 +75,7 @@ public class AuthService {
 
         RefreshTokens existingRefreshToken = refreshTokenRepository.findByUserId(userId);
 
-        System.out.println("existingRefreshToken = " + existingRefreshToken);
+        log.debug("existingRefreshToken = {}", existingRefreshToken);
 
         RefreshTokens refreshTokens = generateRefreshToken(userId);
 
