@@ -73,25 +73,13 @@ public class AuthService {
 
         log.debug("UserId = {}", userId.toString());
 
-        RefreshTokens existingRefreshToken = refreshTokenRepository.findByUserId(userId);
-
-        log.debug("existingRefreshToken = {}", existingRefreshToken);
+        refreshTokenRepository.deleteByUserId(userId);
+        refreshTokenRepository.flush();
 
         RefreshTokens refreshTokens = generateRefreshToken(userId);
 
-//        if (existingRefreshToken != null) {
-//            existingRefreshToken.setToken(refreshTokens.getToken());
-//            existingRefreshToken.setExpiresAt(refreshTokens.getExpiresAt());
-//            existingRefreshToken.setCreatedAt(refreshTokens.getCreatedAt());
-//            existingRefreshToken.setRevoked(false);
-//            existingRefreshToken.setId(refreshTokens.getId());
-//        }
-//        else {
-//            existingRefreshToken = refreshTokens;
-//        }
-//
-//        RefreshTokens savedRefreshToken = refreshTokenRepository.save(existingRefreshToken);
-        return new AuthController.AuthResponse(token, userId, refreshTokens.getToken());
+        RefreshTokens savedRefreshToken = refreshTokenRepository.save(refreshTokens);
+        return new AuthController.AuthResponse(token, userId, savedRefreshToken.getToken());
     }
 
 
