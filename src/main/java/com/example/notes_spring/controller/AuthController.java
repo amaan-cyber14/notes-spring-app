@@ -110,15 +110,26 @@ public class AuthController {
         Long userId = authUtil.getCurrentUserId();
 
         log.debug("UserId = {}", userId.toString());
-        // delete refresh token if present
-        refreshTokenRepository.deleteByUserId(userId);
+        // update refresh token if present
+        RefreshTokens existingRefreshToken = refreshTokenRepository.findByUserId(userId);
 
         long createdAt = System.currentTimeMillis();
         long expiresAt = createdAt + 24L * 60 * 60 * 1000 * 30 ;
         RefreshTokens refreshTokens = new RefreshTokens(
                 UUID.randomUUID().toString(), userId, createdAt, expiresAt, false
         );
-        RefreshTokens savedRefreshToken = refreshTokenRepository.save(refreshTokens);
+        if (existingRefreshToken != null) {
+            existingRefreshToken.setToken(refreshTokens.getToken());
+            existingRefreshToken.setExpiresAt(refreshTokens.getExpiresAt());
+            existingRefreshToken.setCreatedAt(refreshTokens.getCreatedAt());
+            existingRefreshToken.setRevoked(false);
+            existingRefreshToken.setId(refreshTokens.getId());
+        }
+        else {
+            existingRefreshToken = refreshTokens;
+        }
+
+        RefreshTokens savedRefreshToken = refreshTokenRepository.save(existingRefreshToken);
         return new AuthResponse(token, userId, savedRefreshToken.getToken());
     }
 
