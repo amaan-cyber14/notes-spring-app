@@ -79,19 +79,19 @@ public class AuthService {
 
         RefreshTokens refreshTokens = generateRefreshToken(userId);
 
-        if (existingRefreshToken != null) {
-            existingRefreshToken.setToken(refreshTokens.getToken());
-            existingRefreshToken.setExpiresAt(refreshTokens.getExpiresAt());
-            existingRefreshToken.setCreatedAt(refreshTokens.getCreatedAt());
-            existingRefreshToken.setRevoked(false);
-            existingRefreshToken.setId(refreshTokens.getId());
-        }
-        else {
-            existingRefreshToken = refreshTokens;
-        }
-
-        RefreshTokens savedRefreshToken = refreshTokenRepository.save(existingRefreshToken);
-        return new AuthController.AuthResponse(token, userId, savedRefreshToken.getToken());
+//        if (existingRefreshToken != null) {
+//            existingRefreshToken.setToken(refreshTokens.getToken());
+//            existingRefreshToken.setExpiresAt(refreshTokens.getExpiresAt());
+//            existingRefreshToken.setCreatedAt(refreshTokens.getCreatedAt());
+//            existingRefreshToken.setRevoked(false);
+//            existingRefreshToken.setId(refreshTokens.getId());
+//        }
+//        else {
+//            existingRefreshToken = refreshTokens;
+//        }
+//
+//        RefreshTokens savedRefreshToken = refreshTokenRepository.save(existingRefreshToken);
+        return new AuthController.AuthResponse(token, userId, refreshTokens.getToken());
     }
 
 
