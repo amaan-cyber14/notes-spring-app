@@ -50,7 +50,8 @@ public class AuthService {
         this.userService = userService;
     }
 
-    public ResponseEntity<Map<String, String>> logout(@RequestBody @Validated RefreshTokenRequest req) {
+    @Transactional
+    public ResponseEntity<Map<String, String>> logout(RefreshTokenRequest req) {
         String refreshToken = req.getRefreshToken();
 
         RefreshTokens refreshTokens = refreshTokenRepository.findByToken(refreshToken).orElseThrow(() -> new UnauthorizedException("Invalid refresh token"));
