@@ -111,7 +111,7 @@ public class AuthController {
 
         log.debug("UserId = {}", userId.toString());
         // delete refresh token if present
-        refreshTokenRepository.deleteByUserId(userId);
+//        refreshTokenRepository.deleteByUserId(userId);
 
         long createdAt = System.currentTimeMillis();
         long expiresAt = createdAt + 24L * 60 * 60 * 1000 * 30 ;
