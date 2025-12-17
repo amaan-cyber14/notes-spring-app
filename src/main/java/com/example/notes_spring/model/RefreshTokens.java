@@ -38,4 +38,15 @@ public class RefreshTokens {
         this.expiresAt = expiresAt;
         this.isRevoked = isRevoked;
     }
+
+    @Override
+    public String toString() {
+        return "RefreshTokens{" +
+                "token='" + token + '\'' +
+                ", userId=" + userId +
+                ", createdAt=" + createdAt +
+                ", expiresAt=" + expiresAt +
+                ", revoked=" + false +
+                '}';
+    }
 }
