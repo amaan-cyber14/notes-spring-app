@@ -7,7 +7,6 @@ import com.example.notes_spring.exception.NoteNotFoundException;
 import com.example.notes_spring.model.Note;
 import com.example.notes_spring.repository.NotesRepository;
 import jakarta.transaction.Transactional;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 public class NotesService {

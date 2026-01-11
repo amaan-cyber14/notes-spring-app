@@ -17,8 +17,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,6 +54,7 @@ public class AuthService {
 
         RefreshTokens refreshTokens = refreshTokenRepository.findByToken(refreshToken).orElseThrow(() -> new UnauthorizedException("Invalid refresh token"));
         refreshTokenRepository.deleteByUserId(refreshTokens.getUserId());
+        refreshTokenRepository.flush();
         HashMap<String, String> map = new HashMap<>();
         map.put("refreshToken", null);
         return new ResponseEntity<>(map, HttpStatus.OK);
